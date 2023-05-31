@@ -1,7 +1,7 @@
 import { createServer } from "restify";
 import { createLogger } from "bunyan";
 import morgan from "morgan";
-import { spawn } from "node:child_process";
+import { mp4towebm, test, webmtomp4 } from "./functions";
 
 const server = createServer({
   name: "My server",
@@ -12,25 +12,41 @@ const server = createServer({
 });
 server.use(morgan("dev"));
 
-const test = () =>
-  new Promise((resolve, reject) => {
-    const cmd = spawn("ffmpeg", ["-version"]);
-    cmd.stdout.on("data", (data) => {
-      console.log(data);
-    });
-    cmd.stderr.on("error", (data) => {
-      console.log(data);
-    });
-    cmd.on("close", (code) => {
-      resolve("Resolve code -> " + code);
-    });
-  });
-
 server.get("/api/v1/ffmpegtest", async (req, res) => {
   try {
     const responseCode = await test();
     return res.json({
       message: "Success",
+      code: responseCode,
+    });
+  } catch (error) {
+    return res.json({
+      message: error,
+      error: true,
+    });
+  }
+});
+
+server.get("/api/v1/transform/webmtomp4", async (req, res) => {
+  try {
+    const responseCode = await webmtomp4("src\\videos\\original_webm.webm");
+    return res.json({
+      message: "Video transformed from webm to mp4 succesfully",
+      code: responseCode,
+    });
+  } catch (error) {
+    return res.json({
+      message: error,
+      error: true,
+    });
+  }
+});
+
+server.get("/api/v1/transform/mp4towebm", async (req, res) => {
+  try {
+    const responseCode = await mp4towebm("src\\videos\\original_mp4.mp4");
+    return res.json({
+      message: "Video transformed from mp4 to webm succesfully",
       code: responseCode,
     });
   } catch (error) {
