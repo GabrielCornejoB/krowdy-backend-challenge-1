@@ -1,7 +1,7 @@
 import { createServer } from "restify";
 import { createLogger } from "bunyan";
 import morgan from "morgan";
-import { mp4towebm, test, webmtomp4 } from "./functions";
+import { mp4towebm, test, webmtomp4, muteVideo } from "./functions";
 
 const server = createServer({
   name: "My server",
@@ -48,6 +48,27 @@ server.get("/api/v1/transform/mp4towebm", async (req, res) => {
     return res.json({
       message: "Video transformed from mp4 to webm succesfully",
       code: responseCode,
+    });
+  } catch (error) {
+    return res.json({
+      message: error,
+      error: true,
+    });
+  }
+});
+
+server.get("/api/v1/mutevideos", async (req, res) => {
+  try {
+    await muteVideo(
+      "src\\videos\\original_mp4.mp4",
+      "src\\videos\\muted_mp4.mp4"
+    );
+    await muteVideo(
+      "src\\videos\\original_webm.webm",
+      "src\\videos\\muted_webm.webm"
+    );
+    return res.json({
+      message: "Videos muted succesfully",
     });
   } catch (error) {
     return res.json({

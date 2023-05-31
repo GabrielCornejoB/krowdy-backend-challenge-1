@@ -55,4 +55,29 @@ const mp4towebm = (videoPath: string) =>
       }
     });
   });
-export { test, webmtomp4, mp4towebm };
+
+const muteVideo = (videoPath: string, newFilePath: string) =>
+  new Promise((resolve, reject) => {
+    const cmd = spawn("ffmpeg", [
+      "-i",
+      videoPath,
+      "-c",
+      "copy",
+      "-an",
+      newFilePath,
+    ]);
+    console.log("Transforming video...");
+    cmd.stdout.on("data", (data) => {
+      console.log(data);
+    });
+    cmd.stderr.on("error", (data) => {
+      console.log(data);
+    });
+    cmd.on("close", (code) => {
+      if (code === 0) {
+        resolve("Resolve code -> " + code);
+      }
+    });
+  });
+
+export { test, webmtomp4, mp4towebm, muteVideo };
